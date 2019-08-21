@@ -20,6 +20,8 @@ import DropDownIcon from '@material-ui/icons/ArrowDropDown';
 import AddIcon from '@material-ui/icons/Add';
 import FilterIcon from '@material-ui/icons/FilterList';
 import SelectAllIcon from '@material-ui/icons/SelectAll';
+import SpeakerIcon from '@material-ui/icons/VolumeUp';
+import { Table } from '@devexpress/dx-react-grid-material-ui';
 import MediaUpload from './MediaUpload';
 import PassageMedia from './PassageMedia';
 import SnackBar from './SnackBar';
@@ -57,12 +59,15 @@ const useStyles = makeStyles((theme: Theme) =>
     icon: {
       marginLeft: theme.spacing(1),
     },
+    link: {},
+    viewIcon: {},
   })
 );
 
 interface IRow {
   planid: string;
   id: string;
+  url: string;
   planName: string;
   fileName: string;
   section: string;
@@ -141,6 +146,7 @@ const getMedia = (
         .attributes.name,
       id: f.id,
       fileName: f.attributes.originalFile,
+      url: f.attributes.audioUrl,
       section: getSection(section),
       reference: getReference(passage),
       duration: f.attributes.duration ? f.attributes.duration.toString() : '',
@@ -227,7 +233,7 @@ export function MediaTab(props: IProps) {
   ];
   const columnWidths = [
     { columnName: 'planName', width: 150 },
-    { columnName: 'fileName', width: 150 },
+    { columnName: 'fileName', width: 220 },
     { columnName: 'section', width: 150 },
     { columnName: 'reference', width: 150 },
     { columnName: 'duration', width: 100 },
@@ -370,6 +376,27 @@ export function MediaTab(props: IProps) {
     /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [loaded]);
 
+  const LinkCell = ({ value, style, ...restProps }: any) => (
+    <Table.Cell {...restProps} style={{ ...style }} value>
+      <div
+        style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}
+      >
+        <a href={restProps.row.url} target="_blank" rel="noopener noreferrer">
+          {value}
+        </a>
+        <SpeakerIcon className={classes.viewIcon} />
+      </div>
+    </Table.Cell>
+  );
+
+  const Cell = (props: any) => {
+    const { column, row } = props;
+    if (column.name === 'fileName' && row.parentId !== '') {
+      return <LinkCell {...props} />;
+    }
+    return <Table.Cell {...props} />;
+  };
+
   return (
     <div className={classes.container}>
       <div className={classes.paper}>
@@ -421,9 +448,6 @@ export function MediaTab(props: IProps) {
             <MenuItem onClick={handleConfirmAction('Delete')}>
               {t.delete}
             </MenuItem>
-            <MenuItem onClick={handleConfirmAction('Download')}>
-              {t.download}
-            </MenuItem>
             <MenuItem onClick={handleConfirmAction('Change Version')}>
               {t.changeVersion}
             </MenuItem>
@@ -450,6 +474,7 @@ export function MediaTab(props: IProps) {
           columns={columnDefs}
           columnWidths={columnWidths}
           columnSorting={columnSorting}
+          dataCell={Cell}
           sorting={[
             { columnName: 'planName', direction: 'asc' },
             { columnName: 'fileName', direction: 'asc' },

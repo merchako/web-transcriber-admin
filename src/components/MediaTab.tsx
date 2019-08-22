@@ -385,6 +385,8 @@ export function MediaTab(props: IProps) {
             remoteId('mediafile', restProps.row.id, keyMap) +
             '/file'
           }
+          target="_blank"
+          rel="noopener noreferrer"
         >
           {value}
         </a>

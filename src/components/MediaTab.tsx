@@ -20,7 +20,6 @@ import DropDownIcon from '@material-ui/icons/ArrowDropDown';
 import AddIcon from '@material-ui/icons/Add';
 import FilterIcon from '@material-ui/icons/FilterList';
 import SelectAllIcon from '@material-ui/icons/SelectAll';
-import SpeakerIcon from '@material-ui/icons/VolumeUp';
 import { Table } from '@devexpress/dx-react-grid-material-ui';
 import MediaUpload from './MediaUpload';
 import PassageMedia from './PassageMedia';
@@ -31,9 +30,10 @@ import related from '../utils/related';
 import Auth from '../auth/Auth';
 import moment from 'moment';
 import 'moment/locale/fr';
-import { remoteIdNum } from '../utils';
+import { remoteIdNum, remoteId } from '../utils';
 import { useGlobal } from 'reactn';
 import { dateCompare, numCompare } from '../utils/sort';
+import { API_CONFIG } from '../api-variable';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -60,14 +60,12 @@ const useStyles = makeStyles((theme: Theme) =>
       marginLeft: theme.spacing(1),
     },
     link: {},
-    viewIcon: {},
   })
 );
 
 interface IRow {
   planid: string;
   id: string;
-  url: string;
   planName: string;
   fileName: string;
   section: string;
@@ -146,7 +144,6 @@ const getMedia = (
         .attributes.name,
       id: f.id,
       fileName: f.attributes.originalFile,
-      url: f.attributes.audioUrl,
       section: getSection(section),
       reference: getReference(passage),
       duration: f.attributes.duration ? f.attributes.duration.toString() : '',
@@ -381,10 +378,16 @@ export function MediaTab(props: IProps) {
       <div
         style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}
       >
-        <a href={restProps.row.url} target="_blank" rel="noopener noreferrer">
+        <a
+          href={
+            API_CONFIG.host +
+            '/api/mediafiles/' +
+            remoteId('mediafile', restProps.row.id, keyMap) +
+            '/file'
+          }
+        >
           {value}
         </a>
-        <SpeakerIcon className={classes.viewIcon} />
       </div>
     </Table.Cell>
   );

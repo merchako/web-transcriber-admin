@@ -17,7 +17,6 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   FormGroup,
   FormControlLabel,
@@ -47,7 +46,7 @@ const useStyles = makeStyles((theme: Theme) =>
       marginRight: 0,
     },
     textField: {
-      width: 100,
+      width: 150,
       marginLeft: theme.spacing(1),
       marginRight: theme.spacing(1),
     },
@@ -115,7 +114,7 @@ export const LanguagePicker = (props: IProps) => {
   const handleClickOpen = (e: any) => {
     if (e.keyCode && e.keyCode === 9) return;
     const key = value.toLocaleLowerCase();
-    if (exact.hasOwnProperty(key) && key !== 'und') {
+    if (exact.hasOwnProperty(key)) {
       setResponse(name + ' (' + value + ')');
       const langTag = langTags[exact[key][0].index];
       setTag(langTag);
@@ -174,7 +173,6 @@ export const LanguagePicker = (props: IProps) => {
   ];
 
   const selectFont = (tag: LangTag) => {
-    if (tag.tag === 'und') return;
     let code = tag.script + '-' + tag.region;
     if (!fontMap.hasOwnProperty(code)) {
       code = tag.script;
@@ -371,7 +369,7 @@ export const LanguagePicker = (props: IProps) => {
         label={t.language}
         required={true}
         style={{ width: 300 }}
-        value={value !== 'und' ? name + ' (' + value + ')' : ''}
+        value={name + ' (' + value + ')'}
         onClick={handleClickOpen}
         onKeyDown={handleClickOpen}
       />
@@ -381,12 +379,14 @@ export const LanguagePicker = (props: IProps) => {
         onClose={handleCancel}
         aria-labelledby="form-dialog-title"
       >
-        <DialogTitle id="form-dialog-title">
-          <Typography>{t.selectLanguage}</Typography>
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            <Typography>
+        <DialogTitle id="form-dialog-title">{t.selectLanguage}</DialogTitle>
+        <DialogContent dividers>
+          <TextField
+            autoFocus
+            margin="normal"
+            id="language"
+            label={'Find a language by name, code, or country'} // TODO replace as t.language
+            /* Useful for above
               {reactStringReplace(t.instructions, /\{(\d+)\}/g, () => (
                 <a
                   href="https://www.w3.org/International/questions/qa-choosing-language-tags"
@@ -395,42 +395,13 @@ export const LanguagePicker = (props: IProps) => {
                 >
                   {t.code}
                 </a>
-              ))}
-            </Typography>
-          </DialogContentText>
-          <FormGroup row className={classes.check}>
-            <FormControlLabel
-              className={classes.label}
-              control={
-                <Checkbox
-                  checked={subtag}
-                  onChange={event => setSubtag(event.target.checked)}
-                  value="secondary"
-                />
-              }
-              label={t.subtags}
-            />
-            <FormControlLabel
-              className={classes.label2}
-              control={
-                <Checkbox
-                  checked={secondary}
-                  onChange={event => setSecondary(event.target.checked)}
-                  value="secondary"
-                />
-              }
-              label={t.details}
-            />
-          </FormGroup>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="language"
-            label={t.language}
+              ))} */
+
             fullWidth
             value={response}
             onChange={handleChange}
             onClick={handleLanguageClick}
+            variant="outlined"
             InputProps={{
               ref: langEl,
               endAdornment: (
@@ -449,6 +420,35 @@ export const LanguagePicker = (props: IProps) => {
               ),
             }}
           />
+
+          {/* If a language hasn't been selected, show options for the list */
+          !tag && (
+            <FormGroup row className={classes.check}>
+              <FormControlLabel
+                className={classes.label}
+                control={
+                  <Checkbox
+                    checked={subtag}
+                    onChange={event => setSubtag(event.target.checked)}
+                    value="secondary"
+                  />
+                }
+                label={t.subtags}
+              />
+              <FormControlLabel
+                className={classes.label2}
+                control={
+                  <Checkbox
+                    checked={secondary}
+                    onChange={event => setSecondary(event.target.checked)}
+                    value="secondary"
+                  />
+                }
+                label={t.details}
+              />
+            </FormGroup>
+          )}
+
           {optList()}
           {scriptField}
           {fontField}
